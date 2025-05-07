@@ -42,9 +42,13 @@ app.delete('/movie/:id', (req, res) => {
       res.send("Deleted Movie Successfully")
 })
 
+app.use((req, res, next) => {
+      next(res.status(404).send("Not Found"))
+})
+
 app.use((err, req, res, next) => {
-      console.log(err)
-      res.status(500).send("Something Broke")
+      const statusCode = err.statusCode || 500
+      res.status(statusCode).send(err.message)
 })
 
 app.listen(process.env.PORT)
