@@ -1,5 +1,6 @@
 const express = require('express')
 const { getMovies, getMovieById, updateMovie, insertMovie, deleteMovie } = require('../database')
+const { authMiddleware } = require('../middlewares/authMiddleware')
 
 const router = express.Router()
 
@@ -8,20 +9,20 @@ router.get('/', async (req, res) => {
       res.send(movies)
 })
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", authMiddleware, async (req, res) => {
       const { id } = req.params
       const movie = await getMovieById(id)
       res.send(movie)
 })
 
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
       const { name, synopsis, rating } = req.body
       if (!name || !synopsis || !rating) return res.send("Field cannot Empty")
       const movie = await insertMovie(name, synopsis, rating)
       res.send(movie)
 })
 
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', authMiddleware, async (req, res) => {
       try {
             const { id } = req.params
             const { name, synopsis, rating } = req.body
@@ -33,7 +34,7 @@ router.patch('/:id', async (req, res) => {
       }
 })
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authMiddleware, (req, res) => {
       const { id } = req.params
       deleteMovie(id)
       res.send("Deleted Movie Successfully")

@@ -1,15 +1,7 @@
 const express = require('express')
 const { userRegister, userLogin } = require('../services/auth')
-const { route } = require('./movie')
-const { getUserByEmail } = require('../database')
 
 const router = express.Router()
-
-router.post('/testing', async (req, res) => {
-      const { email } = req.body
-      const user = await getUserByEmail(email)
-      console.log(user)
-})
 
 router.post('/register', async (req, res) => {
       const { fullname, username, password, email } = req.body
