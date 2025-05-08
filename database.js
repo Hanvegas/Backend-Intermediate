@@ -1,4 +1,5 @@
 const mysql = require('mysql2')
+const ExpressError = require('./utils/ErrorHandler')
 
 const pool = mysql.createPool({
       host: process.env.MYSQL_HOST,
@@ -16,6 +17,27 @@ module.exports.getMovies = async () => {
 module.exports.getMovieById = async (id) => {
       const [res] = await pool.query("SELECT * FROM movies WHERE id = ?", [id])
       return res[0]
+}
+
+module.exports.getMovieByName = async (name) => {
+      const keyword = `%${name}%`
+      const [res] = await pool.query("SELECT * FROM movies WHERE name LIKE ?", [keyword])
+      return res
+}
+
+module.exports.getMovieByRating = async (rating) => {
+      const [res] = await pool.query("SELECT * FROM movies WHERE rating >= ?", [rating])
+      return res
+}
+
+module.exports.getMoviesSortBy = async (sort) => {
+      if (!sort) return
+      const allowed = ["name", 'synopsis', 'rating']
+      const [sortBy, order] = sort.split('_')
+      if (!allowed.includes(sortBy)) return new ExpressError(400, "Invalid sort")
+      const isDesc = order === "desc" ? "DESC" : "ASC"
+      const [res] = await pool.query(`SELECT * FROM movies ORDER BY ${sortBy} ${isDesc}`)
+      return res
 }
 
 module.exports.insertMovie = async (name, synopsis, rating) => {
@@ -44,5 +66,5 @@ module.exports.getUserByEmail = async (email) => {
 
 module.exports.insertUser = async (fullname, username, password, email) => {
       const result = await pool.query("INSERT INTO users (fullname, username, password, email) VALUES (?, ?, ?, ?)", [fullname, username, password, email])
-      return {user_id: result[0].insertId, fullname, username, password, email}
+      return { user_id: result[0].insertId, fullname, username, password, email }
 }

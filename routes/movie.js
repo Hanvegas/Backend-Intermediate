@@ -1,12 +1,16 @@
 const express = require('express')
-const { getMovies, getMovieById, updateMovie, insertMovie, deleteMovie } = require('../database')
+const { getMovies, getMovieById, updateMovie, insertMovie, deleteMovie, getMovieByRating, getMoviesSortBy, getMovieByName } = require('../database')
 const { authMiddleware } = require('../middlewares/authMiddleware')
 
 const router = express.Router()
 
 router.get('/', async (req, res) => {
+      const { search, rating, sort } = req.query
+      const searching = await getMovieByName(search)
+      const sorting = await getMoviesSortBy(sort)
+      const filtering = await getMovieByRating(rating)
       const movies = await getMovies()
-      res.send(movies)
+      res.send(search ? searching : rating ? filtering : sort ? sorting : movies)
 })
 
 router.get("/:id", authMiddleware, async (req, res) => {
