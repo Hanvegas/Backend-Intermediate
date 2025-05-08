@@ -10,6 +10,8 @@ app.use('/movie', require('./routes/movie'))
 
 app.use('/', require('./routes/auth'))
 
+app.use('/upload', require('./routes/upload'))
+
 app.use((req, res, next) => {
       next(res.status(404).send("Not Found"))
 })
