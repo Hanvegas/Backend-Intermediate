@@ -20,7 +20,7 @@ router.post('/login', async (req, res) => {
             sameSite: 'strict',
             maxAge: 1000 * 60 * 60 * 24
       })
-      res.send({ token, passwordHash })
+      res.send({ token, email, passwordHash })
 })
 
 
