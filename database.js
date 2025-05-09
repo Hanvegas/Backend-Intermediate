@@ -64,7 +64,12 @@ module.exports.getUserByEmail = async (email) => {
       return result[0][0]
 }
 
-module.exports.insertUser = async (fullname, username, password, email) => {
-      const result = await pool.query("INSERT INTO users (fullname, username, password, email) VALUES (?, ?, ?, ?)", [fullname, username, password, email])
-      return { user_id: result[0].insertId, fullname, username, password, email }
+module.exports.insertUser = async (fullname, username, password, email, token) => {
+      const result = await pool.query("INSERT INTO users (fullname, username, password, email, token) VALUES (?, ?, ?, ?, ?)", [fullname, username, password, email, token])
+      return { user_id: result[0].insertId, fullname, username, password, email, token }
+}
+
+module.exports.getUserToken = async(token) => {
+      const [res] = await pool.query("SELECT * FROM users WHERE token = ?", [token])
+      return res[0]
 }
