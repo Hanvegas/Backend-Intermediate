@@ -12,6 +12,8 @@ app.use('/', require('./routes/auth'))
 
 app.use('/upload', require('./routes/upload'))
 
+app.use('/', require('./routes/verified'))
+
 app.use((req, res, next) => {
       next(res.status(404).send("Not Found"))
 })

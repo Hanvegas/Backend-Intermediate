@@ -2,11 +2,15 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { insertUser, getUserByEmail } = require('../database')
 const ExpressError = require('../utils/ErrorHandler')
+const { v4: uuidv4 } = require('uuid')
+const { sendMail } = require('./sendMail')
 
 module.exports.userRegister = async (fullname, username, password, email) => {
       const salt = await bcrypt.genSalt(10)
       const hashed = await bcrypt.hash(password, salt)
-      const result = insertUser(fullname, username, hashed, email)
+      const token = uuidv4()
+      const result = insertUser(fullname, username, hashed, email, token)
+      await sendMail(email, "Simpan Kode OTP", `<h1>Kode OTP anda : ${token}</h1>`)
       return result
 }
 
@@ -16,5 +20,5 @@ module.exports.userLogin = async (email, password) => {
       const isMatch = await bcrypt.compare(password, user.password)
       if (!isMatch) throw new ExpressError(401, "Email or Password not valid")
       const token = jwt.sign({ id: user.user_id, username: user.username, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1d' })
-      return {token, passwordHash: user.password}
+      return { token, passwordHash: user.password }
 }
