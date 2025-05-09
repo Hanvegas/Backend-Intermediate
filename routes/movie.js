@@ -1,47 +1,17 @@
 const express = require('express')
-const { getMovies, getMovieById, updateMovie, insertMovie, deleteMovie, getMovieByRating, getMoviesSortBy, getMovieByName } = require('../database')
+const MovieController = require('../controllers/movie')
 const { authMiddleware } = require('../middlewares/authMiddleware')
 
 const router = express.Router()
 
-router.get('/', async (req, res) => {
-      const { search, rating, sort } = req.query
-      const searching = await getMovieByName(search)
-      const sorting = await getMoviesSortBy(sort)
-      const filtering = await getMovieByRating(rating)
-      const movies = await getMovies()
-      res.send(search ? searching : rating ? filtering : sort ? sorting : movies)
-})
+router.get('/', MovieController.index)
 
-router.get("/:id", authMiddleware, async (req, res) => {
-      const { id } = req.params
-      const movie = await getMovieById(id)
-      res.send(movie)
-})
+router.get("/:id", authMiddleware, MovieController.show)
 
-router.post('/', authMiddleware, async (req, res) => {
-      const { name, synopsis, rating } = req.body
-      if (!name || !synopsis || !rating) return res.send("Field cannot Empty")
-      const movie = await insertMovie(name, synopsis, rating)
-      res.send(movie)
-})
+router.post('/', authMiddleware, MovieController.store)
 
-router.patch('/:id', authMiddleware, async (req, res) => {
-      try {
-            const { id } = req.params
-            const { name, synopsis, rating } = req.body
-            if (!name || !synopsis || !rating) return res.send("Field cannot Empty")
-            const movie = await updateMovie(name, synopsis, rating, id)
-            res.send(movie)
-      } catch (error) {
-            console.log(error)
-      }
-})
+router.patch('/:id', authMiddleware, MovieController.update)
 
-router.delete('/:id', authMiddleware, (req, res) => {
-      const { id } = req.params
-      deleteMovie(id)
-      res.send("Deleted Movie Successfully")
-})
+router.delete('/:id', authMiddleware, MovieController.destroy)
 
 module.exports = router
